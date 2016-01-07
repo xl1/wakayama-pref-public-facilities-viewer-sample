@@ -7,8 +7,17 @@ html, body, #map {
     margin: 0;
     padding: 0;
 }
+#filters {
+    list-style-type: none;
+    padding: 10px;
+    margin: 20px;
+    background: white;
+    box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 4px -1px;
+    border-radius: 2px;
+}
 </style>
 <div id="map"></div>
+<ul id="filters"></ul>
 <script src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>
 <script>
 (function () {
@@ -23,7 +32,6 @@ html, body, #map {
     var infoWindow = new google.maps.InfoWindow({
         pixelOffset: new google.maps.Size(0, -40),
     });
-    map.data.loadGeoJson(geojsonUrl);
     map.data.addListener('mouseover', function (e) {
         infoWindow.setContent(e.feature.getProperty('名称'));
         infoWindow.setPosition(e.feature.getGeometry().get());
@@ -31,6 +39,35 @@ html, body, #map {
     });
     map.data.addListener('mouseout', function () {
         infoWindow.close();
+    });
+    map.data.loadGeoJson(geojsonUrl, {}, function (data) {
+        // filter by categories
+        var filters = document.getElementById('filters');
+        var categories = {};
+        map.data.forEach(function (feature) {
+            categories[feature.getProperty('カテゴリー')] = true;
+        });
+        Object.keys(categories).forEach(function (category) {
+            var input = document.createElement('input');
+            input.type = 'checkbox';
+            input.checked = true;
+            input.value = category;
+            var label = document.createElement('label');
+            label.appendChild(input);
+            label.appendChild(document.createTextNode(category));
+            var li = document.createElement('li');
+            li.appendChild(label);
+            filters.appendChild(li);
+        });
+        filters.addEventListener('change', function (e) {
+            categories[e.target.value] = e.target.checked;
+            map.data.setStyle(function (feature) {
+                return {
+                    visible: categories[feature.getProperty('カテゴリー')],
+                };
+            });
+        });
+        map.controls[google.maps.ControlPosition.RIGHT_TOP].push(filters);
     });
 })();
 </script>
