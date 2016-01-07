@@ -1,0 +1,4 @@
+[submodule "list-of-public-facilities"]
+	path = list-of-public-facilities
+	url = https://github.com/xl1/list-of-public-facilities.git
+	branch = add-geojson
