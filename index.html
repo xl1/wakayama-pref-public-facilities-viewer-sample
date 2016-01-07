@@ -20,6 +20,17 @@ html, body, #map {
         },
         zoom: 10,
     });
+    var infoWindow = new google.maps.InfoWindow({
+        pixelOffset: new google.maps.Size(0, -40),
+    });
     map.data.loadGeoJson(geojsonUrl);
+    map.data.addListener('mouseover', function (e) {
+        infoWindow.setContent(e.feature.getProperty('名称'));
+        infoWindow.setPosition(e.feature.getGeometry().get());
+        infoWindow.open(map);
+    });
+    map.data.addListener('mouseout', function () {
+        infoWindow.close();
+    });
 })();
 </script>
